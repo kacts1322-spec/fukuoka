@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>후쿠오카 봄날 미식 플래너 v5.0</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            background-color: #FFF9FA; /* 벚꽃 핑크 베이스 */
+            color: #4B5563;
+            overflow-x: hidden;
+        }
+        .tab-active {
+            border-bottom: 4px solid #F472B6;
+            color: #BE185D;
+            font-weight: 800;
+        }
+        .card-spring:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 25px 30px -10px rgba(244, 114, 182, 0.15);
+        }
+        .scroll-custom::-webkit-scrollbar {
+            width: 6px;
+        }
+        .scroll-custom::-webkit-scrollbar-track {
+            background: #FFF1F2;
+        }
+        .scroll-custom::-webkit-scrollbar-thumb {
+            background: #FDA4AF;
+            border-radius: 12px;
+        }
+        .spring-gradient {
+            background: linear-gradient(135deg, #FFF1F2 0%, #F0FDFA 100%);
+        }
+        .icon-box {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.2rem;
+            width: 70px;
+            height: 70px;
+            border-radius: 20px;
+            background: white;
+            box-shadow: 0 8px 15px -3px rgba(0,0,0,0.05);
+        }
+        .type-item-active {
+            background-color: #FCE7F3;
+            color: #DB2777;
+            border-color: #F9A8D4;
+        }
+    </style>
+</head>
+<body class="font-sans antialiased">
+
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+    
+    <header class="mb-10 flex flex-col lg:flex-row justify-between items-center bg-white/70 backdrop-blur-lg rounded-[40px] p-10 border border-pink-100 shadow-sm gap-8">
+        <div class="text-center lg:text-left">
+            <h1 class="text-4xl font-black text-pink-600 mb-3 tracking-tighter">🌸 후쿠오카 봄날 미식 플래너</h1>
+            <p class="text-emerald-500 font-bold flex items-center justify-center lg:justify-start gap-2">
+                <span class="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></span>
+                v5.0 요리 구분별 스마트 필터링 시스템
+            </p>
+        </div>
+        <div class="grid grid-cols-2 gap-4">
+            <div class="bg-rose-50 px-6 py-4 rounded-3xl border border-rose-100 text-center">
+                <p class="text-[10px] text-rose-400 font-black uppercase tracking-widest mb-1">Google Avg</p>
+                <p class="text-2xl font-black text-rose-600">4.6</p>
+            </div>
+            <div class="bg-sky-50 px-6 py-4 rounded-3xl border border-sky-100 text-center">
+                <p class="text-[10px] text-sky-400 font-black uppercase tracking-widest mb-1">Tabelog Avg</p>
+                <p class="text-2xl font-black text-sky-600">3.6</p>
+            </div>
+        </div>
+    </header>
+
+    <nav class="flex overflow-x-auto mb-10 space-x-3 no-scrollbar pb-2">
+        <button id="tab-meals" class="tab-btn tab-active px-10 py-4 rounded-2xl transition-all" onclick="switchTab('meals')">🍱 식사 공간</button>
+        <button id="tab-desserts" class="tab-btn px-10 py-4 text-stone-400 rounded-2xl transition-all" onclick="switchTab('desserts')">🍰 달콤한 휴식</button>
+        <button id="tab-coffee" class="tab-btn px-10 py-4 text-stone-400 rounded-2xl transition-all" onclick="switchTab('coffee')">☕ 묵상의 자리</button>
+        <button id="tab-insights" class="tab-btn px-10 py-4 text-stone-400 rounded-2xl transition-all" onclick="switchTab('insights')">📒 PM 기획노트</button>
+    </nav>
+
+    <main id="content-directory" class="block">
+        <div class="bg-white/90 rounded-[40px] shadow-2xl border border-pink-50 p-8 mb-10">
+            <div class="flex flex-col xl:flex-row justify-between items-end mb-10 gap-6">
+                <div class="max-w-2xl">
+                    <h2 id="section-title" class="text-3xl font-black text-gray-800 mb-3">식사 및 교제용 공간</h2>
+                    <p id="section-desc" class="text-gray-400 text-sm leading-relaxed">요리 종류를 선택하여 사역팀의 취향에 맞는 최고의 장소를 찾아보세요.</p>
+                </div>
+                <div class="w-full xl:w-96 relative">
+                    <input type="text" id="searchInput" placeholder="메뉴, 위치 검색..." class="w-full pl-12 pr-6 py-4 rounded-2xl border-2 border-pink-50 focus:border-pink-300 focus:ring-0 outline-none bg-white text-sm font-medium transition-all" onkeyup="filterData()">
+                    <span class="absolute left-4 top-4 text-pink-300">🔍</span>
+                </div>
+            </div>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-10">
+                <!-- Sidebar: Type Selector -->
+                <div class="lg:col-span-3">
+                    <div class="bg-white p-6 rounded-[35px] border border-pink-50 w-full shadow-sm sticky top-10">
+                        <h3 class="text-[10px] font-black text-pink-400 uppercase tracking-[0.3em] mb-6 px-2">요리 구분 필터</h3>
+                        <div id="type-selector" class="space-y-2 max-h-[50vh] overflow-y-auto scroll-custom pr-2">
+                            <!-- Dynamically populated -->
+                        </div>
+                        <div class="mt-8 p-4 bg-pink-50/30 rounded-2xl">
+                            <p class="text-[11px] text-pink-400 leading-relaxed font-medium italic text-center">원하는 요리를 터치하면 리스트가 업데이트됩니다.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Main Content: Card Grid -->
+                <div class="lg:col-span-9">
+                    <div class="flex justify-between items-center mb-6">
+                        <div id="active-filter-label" class="text-xs font-bold text-pink-500 bg-pink-50 px-3 py-1.5 rounded-full">전체 보기</div>
+                        <div id="results-count" class="text-[10px] font-black text-pink-200 tracking-widest uppercase"></div>
+                    </div>
+                    <div id="card-grid" class="grid grid-cols-1 md:grid-cols-2 gap-6 overflow-y-auto pr-4 scroll-custom" style="max-height: 75vh;">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <main id="content-insights" class="hidden">
+        <div class="bg-white rounded-[40px] shadow-2xl border border-pink-100 p-12 spring-gradient">
+            <h2 class="text-4xl font-black mb-10 text-gray-800 border-b-8 border-pink-100 pb-4 inline-block">📋 사역자를 위한 실행 단계</h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
+                <div class="bg-white p-8 rounded-[32px] shadow-sm border border-pink-100 card-spring transition-all">
+                    <h3 class="font-black text-rose-500 mb-4 text-xl flex items-center gap-2"><span>📅</span> 일정 매니지먼트</h3>
+                    <p class="text-gray-500 text-sm leading-relaxed">음식 종류별 휴무일 경향을 파악하십시오. 장어나 스시 같은 전통 요리점은 특정 요일에 집중적으로 쉴 수 있으니, 요리 카테고리 필터를 활용해 대안을 미리 확인해두는 것이 좋습니다.</p>
+                </div>
+                <div class="bg-white p-8 rounded-[32px] shadow-sm border border-emerald-100 card-spring transition-all">
+                    <h3 class="font-black text-emerald-600 mb-4 text-xl flex items-center gap-2"><span>🕰️</span> 브레이크 타임 주의</h3>
+                    <p class="text-gray-500 text-sm leading-relaxed">요리 종류에 따라 브레이크 타임 유무가 다릅니다. 라멘이나 카레류는 회전율이 빨라 브레이크 타임이 짧거나 없는 경우가 많으니 늦은 점심 사역 시 참고하십시오.</p>
+                </div>
+                <div class="bg-white p-8 rounded-[32px] shadow-sm border border-sky-100 card-spring transition-all">
+                    <h3 class="font-black text-sky-600 mb-4 text-xl flex items-center gap-2"><span>👶</span> 가족 배려 설계</h3>
+                    <p class="text-gray-500 text-sm leading-relaxed">아이와 함께하는 경우 모츠나베나 함바그 등 '직접 조리'가 포함된 메뉴는 주의가 필요합니다. 필터링을 통해 정식이나 스시처럼 조리되어 나오는 메뉴를 우선 고려해보세요.</p>
+                </div>
+            </div>
+
+            <div class="bg-gray-800 text-white rounded-[40px] p-12 relative overflow-hidden shadow-2xl">
+                <div class="absolute -right-20 -bottom-20 w-80 h-80 bg-pink-500/10 rounded-full blur-[100px]"></div>
+                <h3 class="text-2xl font-black mb-10 flex items-center gap-3">
+                    <span class="text-pink-400">🌸</span> 깊은 성찰을 위한 PM의 질문
+                </h3>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-12">
+                    <div class="relative">
+                        <p class="text-pink-300 font-bold mb-4 text-sm tracking-widest uppercase">Selectivity</p>
+                        <p class="text-gray-300 text-sm leading-relaxed font-light">요리 구분을 통해 원하는 정보를 골라내듯, 우리 사역의 수많은 일들 중에서 지금 당장 '선택과 집중'해야 할 핵심 가치는 무엇입니까?</p>
+                    </div>
+                    <div class="relative">
+                        <p class="text-emerald-300 font-bold mb-4 text-sm tracking-widest uppercase">Variety</p>
+                        <p class="text-gray-300 text-sm leading-relaxed font-light">각기 다른 요리가 저마다의 평점을 유지하며 존재하듯, 우리 공동체의 서로 다른 은사들을 어떻게 존중하고 조화롭게 배치할 수 있을까요?</p>
+                    </div>
+                    <div class="relative">
+                        <p class="text-sky-300 font-bold mb-4 text-sm tracking-widest uppercase">Interface</p>
+                        <p class="text-gray-300 text-sm leading-relaxed font-light">사용자가 편리하게 정보를 찾도록 인터페이스를 개선했듯이, 세상 사람들이 복음을 더 쉽고 친숙하게 접할 수 있도록 우리가 개선해야 할 '사역의 접점'은 무엇입니까?</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+
+<script>
+    const database = {
+        meals: [
+            { type: "장어덮밥", name: "요시즈카 우나기야", icon: "🍱", hours: "10:30 - 21:00", holiday: "수요일", menu: "우나쥬", price: "4,500円", kids: "가능", google: 4.7, tabelog: 3.8, desc: "150년 전통의 품격 있는 장어 명가", loc: "나카스강변" },
+            { type: "명란덮밥", name: "원조 하카타 멘타이쥬", icon: "🍱", hours: "07:00 - 22:30", holiday: "연중무휴", menu: "멘타이쥬", price: "3,200円", kids: "가능", google: 4.6, tabelog: 3.6, desc: "고급스러운 명란 전문 요리점", loc: "텐진 중앙공원 앞" },
+            { type: "야키니쿠", name: "야키니쿠 챔피언", icon: "🥩", hours: "11:00 - 23:00", holiday: "연중무휴", menu: "와규 코스", price: "6,000円", kids: "가능", google: 4.5, tabelog: 3.5, desc: "하카타역 직결 프리미엄 와규", loc: "하카타 아뮤플라자" },
+            { type: "스시", name: "효탄스시", icon: "🍣", hours: "11:30 - 21:30", holiday: "연중무휴", menu: "특선 세트", price: "3,500円", kids: "가능", google: 4.5, tabelog: 3.6, desc: "텐진의 자존심이라 불리는 스시", loc: "텐진 솔라리아" },
+            { type: "라멘", name: "신신라멘 (본점)", icon: "🍜", hours: "11:00 - 03:00", holiday: "일요일(비정기)", menu: "신신라멘", price: "900円", kids: "보통", google: 4.6, tabelog: 3.6, desc: "한국인 최애 부드러운 돈코츠", loc: "텐진 본점" },
+            { type: "함바그", name: "키와미야 함바그", icon: "🥩", hours: "11:00 - 22:00", holiday: "연중무휴", menu: "숯불 함바그", price: "1,800円", kids: "어려움", google: 4.5, tabelog: 3.5, desc: "직접 구워 먹는 돌판 함바그", loc: "파르코 지하 1층" },
+            { type: "텐푸라", name: "텐푸라 히라오", icon: "🍤", hours: "10:30 - 21:00", holiday: "연중무휴", menu: "오아지 정식", price: "1,100円", kids: "보통", google: 4.6, tabelog: 3.7, desc: "갓 튀긴 튀김과 젓갈이 일품", loc: "아크로스 텐진" },
+            { type: "모츠나베", name: "라쿠텐치", icon: "🥘", hours: "11:30 - 23:00", holiday: "연중무휴", menu: "모츠나베 세트", price: "2,500円", kids: "가능", google: 4.5, tabelog: 3.5, desc: "부추 가득한 전통 모츠나베", loc: "텐진 본점" },
+            { type: "우동", name: "다이치노 우동", icon: "🥢", hours: "11:00 - 21:00", holiday: "부정기", menu: "우엉튀김 우동", price: "800円", kids: "가능", google: 4.5, tabelog: 3.5, desc: "투명한 면발의 예술적 우동", loc: "하카타역 지하" },
+            { type: "우설구이", name: "탄야 하카타", icon: "🥩", hours: "07:00 - 22:00", holiday: "연중무휴", menu: "우설 정식", price: "1,500円", kids: "가능", google: 4.5, tabelog: 3.4, desc: "든든한 아침을 위한 우설 구이", loc: "하카타역" },
+            { type: "회/정식", name: "치카에", icon: "🐟", hours: "11:30 - 21:00", holiday: "월요일", menu: "한정 정식", price: "2,500円", kids: "가능", google: 4.6, tabelog: 3.7, desc: "대형 수조 앞 정갈한 일식", loc: "텐진 다이묘" },
+            { type: "닭요리", name: "미즈타키 나가노", icon: "🍲", hours: "12:00 - 22:00", holiday: "일요일", menu: "미즈타키 코스", price: "4,000円", kids: "가능", google: 4.7, tabelog: 3.8, desc: "진한 보양식 닭한마리", loc: "나카스 인근" },
+            { type: "라멘", name: "하카타 잇소우", icon: "🍜", hours: "11:00 - 24:00", holiday: "부정기", menu: "특제 라멘", price: "1,100円", kids: "어려움", google: 4.6, tabelog: 3.7, desc: "거품 가득한 진한 돈코츠", loc: "하카타역 근처" },
+            { type: "야키니쿠", name: "니쿠이치", icon: "🥩", hours: "16:00 - 24:00", holiday: "연중무휴", menu: "특선 모듬", price: "4,500円", kids: "가능", google: 4.7, tabelog: 3.5, desc: "가성비 최고의 와규 성지", loc: "하카타역 도보 5분" },
+            { type: "모츠나베", name: "오오야마", icon: "🥘", hours: "11:00 - 23:00", holiday: "연중무휴", menu: "미소 모츠나베", price: "2,800円", kids: "적극추천", google: 4.6, tabelog: 3.6, desc: "쾌적하고 깔끔한 모츠나베", loc: "하카타 키테 빌딩" },
+            { type: "스시", name: "타츠미 스시", icon: "🍣", hours: "11:00 - 21:00", holiday: "연중무휴", menu: "창작 스시", price: "6,000円", kids: "가능", google: 4.6, tabelog: 3.7, desc: "창의적인 양념의 명품 스시", loc: "이와타야 백화점" },
+            { type: "돈카츠", name: "와카바", icon: "🥩", hours: "11:00 - 20:30", holiday: "일요일", menu: "흰색 돈카츠", price: "2,500円", kids: "보통", google: 4.7, tabelog: 3.7, desc: "저온 튀김의 부드러운 끝판왕", loc: "텐진 나카스" },
+            { type: "소바", name: "무라타", icon: "🥢", hours: "11:30 - 21:00", holiday: "둘째 화요일", menu: "수제 소바", price: "1,800円", kids: "가능", google: 4.6, tabelog: 3.7, desc: "수제 면발의 깊은 풍미", loc: "하카타 인근" },
+            { type: "카레", name: "다이묘 카레", icon: "🍛", hours: "11:30 - 20:00", holiday: "수요일", menu: "수제 카레", price: "1,200円", kids: "보통", google: 4.5, tabelog: 3.5, desc: "진하고 깊은 맛의 카레", loc: "다이묘" },
+            { type: "야키토리", name: "토리덴", icon: "🍢", hours: "17:00 - 23:00", holiday: "일요일", menu: "토리쿠시", price: "4,500円", kids: "가능", google: 4.6, tabelog: 3.6, desc: "정갈한 닭꼬치 코스 요리", loc: "텐진-야쿠인" },
+            { type: "장어", name: "키쿠카와", icon: "🍱", hours: "11:00 - 22:00", holiday: "연중무휴", menu: "한마리 덮밥", price: "5,500円", kids: "가능", google: 4.7, tabelog: 3.7, desc: "통째로 구워내는 비주얼 명가", loc: "텐진 미나미" },
+            { type: "정식", name: "우메야마 텟페이", icon: "🍚", hours: "11:30 - 21:30", holiday: "수요일", menu: "구이 정식", price: "1,500円", kids: "가능", google: 4.6, tabelog: 3.6, desc: "현지인이 줄 서는 가정식", loc: "와타나베도리" },
+            { type: "퓨전", name: "미하라 두부점", icon: "🧊", hours: "17:30 - 23:00", holiday: "일요일", menu: "두부 요리", price: "3,000円", kids: "가능", google: 4.5, tabelog: 3.6, desc: "두부의 놀라운 변신", loc: "나카스 서편" },
+            { type: "오코노미야키", name: "후키야", icon: " waffle ", hours: "11:00 - 20:00", holiday: "연중무휴", menu: "믹스 오코", price: "1,000円", kids: "가능", google: 4.5, tabelog: 3.5, desc: "든든하고 고소한 후쿠오카식", loc: "하카타 버스 센터" },
+            { type: "이자카야", name: "이소가이", icon: "🏮", hours: "17:00 - 24:00", holiday: "연중무휴", menu: "해산물 구이", price: "4,000円", kids: "보통", google: 4.5, tabelog: 3.6, desc: "수산물 전문 이자카야", loc: "하카타역" },
+            { type: "야키니쿠", name: "스도", icon: "🥩", hours: "17:00 - 23:00", holiday: "연중무휴", menu: "오마카세", price: "12,000円", kids: "가능", google: 4.8, tabelog: 3.9, desc: "하이엔드 야키니쿠 서비스", loc: "하카타 인근" },
+            { type: "스시", name: "스시 사카이", icon: "🍣", hours: "12:00 - 22:00", holiday: "일/월요일", menu: "오마카세", price: "25,000円", kids: "어려움", google: 4.8, tabelog: 4.3, desc: "미슐랭 3스타의 품격", loc: "니시나카스" },
+            { type: "라멘", name: "다루마", icon: "🍜", hours: "11:30 - 24:00", holiday: "연중무휴", menu: "특제 돈코츠", price: "1,000円", kids: "어려움", google: 4.5, tabelog: 3.5, desc: "진하고 꼬릿한 정통의 맛", loc: "텐진 미나미" },
+            { type: "츠케멘", name: "카네토라", icon: "🥢", hours: "11:00 - 22:30", holiday: "연중무휴", menu: "츠케멘", price: "1,300円", kids: "어려움", google: 4.6, tabelog: 3.7, desc: "진하고 걸쭉한 명품 면요리", loc: "텐진" },
+            { type: "야키토리", name: "하치베이", icon: "🍢", hours: "17:30 - 24:00", holiday: "연중무휴", menu: "꼬치 세트", price: "4,500円", kids: "보통", google: 4.5, tabelog: 3.6, desc: "현지인들의 퇴근길 성지", loc: "텐진 본점" }
+        ],
+        desserts: [
+            { type: "도넛", name: "I'm Donut?", icon: "🍩", hours: "11:00 - 20:00", holiday: "연중무휴", menu: "생도넛", price: "400円", kids: "포장추천", google: 4.7, tabelog: 3.6, desc: "입안에서 사라지는 부드러움", loc: "텐진 미나미" },
+            { type: "타르트", name: "키르훼봉", icon: "🥧", hours: "11:00 - 19:00", holiday: "연중무휴", menu: "과일 타르트", price: "1,200円", kids: "가능", google: 4.6, tabelog: 3.6, desc: "화려한 과일의 하모니", loc: "텐진" },
+            { type: "화과자", name: "스즈카케", icon: "🍡", hours: "09:00 - 19:00", holiday: "연중무휴", menu: "이치고다이후쿠", price: "800円", kids: "가능", google: 4.7, tabelog: 3.8, desc: "격식 있는 일본 전통 디저트", loc: "나카스카와바타" },
+            { type: "애플파이", name: "링고", icon: "🍎", hours: "10:00 - 20:00", holiday: "연중무휴", menu: "애플파이", price: "500円", kids: "포장전용", google: 4.6, tabelog: 3.5, desc: "갓 구운 사과향이 가득", loc: "텐진 지하상가" },
+            { type: "팬케이크", name: "시로가네 사보우", icon: "🥞", hours: "10:00 - 21:00", holiday: "부정기", menu: "팬케이크", price: "2,000円", kids: "가능", google: 4.5, tabelog: 3.6, desc: "정갈하고 우아한 브런치", loc: "야쿠인" },
+            { type: "다쿠아즈", name: "16구", icon: "🍪", hours: "10:00 - 18:00", holiday: "월/화요일", menu: "다쿠아즈", price: "600円", kids: "보통", google: 4.7, tabelog: 3.7, desc: "역사가 깃든 원조의 맛", loc: "야쿠인 외곽" },
+            { type: "치즈타르트", name: "베이크", icon: "🥧", hours: "10:00 - 20:00", holiday: "연중무휴", menu: "치즈 타르트", price: "400円", kids: "포장전용", google: 4.6, tabelog: 3.4, desc: "진하고 크리미한 치즈", loc: "텐진" },
+            { type: "초콜릿", name: "카카오 로맨스", icon: "🍫", hours: "10:00 - 19:00", holiday: "부정기", menu: "수제 초콜릿", price: "2,000円", kids: "보통", google: 4.5, tabelog: 3.5, desc: "장인의 초콜릿 부티크", loc: "야쿠인" },
+            { type: "푸딩", name: "무츠카도", icon: "🍮", hours: "10:00 - 20:00", holiday: "연중무휴", menu: "푸딩", price: "1,200円", kids: "가능", google: 4.6, tabelog: 3.5, desc: "식빵과 푸딩의 고소함", loc: "하카타역" },
+            { type: "파르페", name: "토키오", icon: "🍨", hours: "10:00 - 20:00", holiday: "연중무휴", menu: "과일 파르페", price: "2,500円", kids: "가능", google: 4.5, tabelog: 3.4, desc: "과일 본연의 달콤함", loc: "하카타" }
+        ],
+        coffee: [
+            { type: "스페셜티", name: "REC Coffee", icon: "☕", hours: "10:00 - 21:00", holiday: "연중무휴", menu: "핸드드립", price: "800円", kids: "가능", google: 4.6, tabelog: 3.6, desc: "후쿠오카를 대표하는 커피", loc: "하카타역 마루이" },
+            { type: "컨셉카페", name: "FUK Coffee", icon: "✈️", hours: "08:00 - 20:00", holiday: "연중무휴", menu: "라떼", price: "700円", kids: "보통", google: 4.5, tabelog: 3.4, desc: "공항 테마의 설레는 공간", loc: "하카타 도보 5분" },
+            { type: "미니멀", name: "No Coffee", icon: "🕶️", hours: "10:00 - 19:00", holiday: "월요일", menu: "블랙 라떼", price: "800円", kids: "보통", google: 4.5, tabelog: 3.5, desc: "세련된 감각의 정점", loc: "야쿠인" },
+            { type: "라떼아트", name: "Connect Coffee", icon: "🎨", hours: "12:00 - 20:00", holiday: "화요일", menu: "라떼아트", price: "900円", kids: "어려움", google: 4.7, tabelog: 3.6, desc: "예술적인 라떼아트의 향연", loc: "텐진 북쪽" },
+            { type: "로스터리", name: "Manu Coffee", icon: "🏭", hours: "11:00 - 24:00", holiday: "연중무휴", menu: "원두 커피", price: "700円", kids: "가능", google: 4.6, tabelog: 3.5, desc: "자유로운 로컬 감성", loc: "하루요시" },
+            { type: "클래식", name: "커피샤 노다", icon: "🎩", hours: "10:00 - 19:00", holiday: "부정기", menu: "사이폰 커피", price: "1,000円", kids: "보통", google: 4.5, tabelog: 3.6, desc: "품격 있는 레트로 다방", loc: "텐진 본점" },
+            { type: "고요함", name: "아베키", icon: "🕯️", hours: "12:00 - 17:30", holiday: "일/월요일", menu: "치즈케익", price: "1,800円", kids: "어려움", google: 4.6, tabelog: 3.5, desc: "사색을 위한 고요한 공간", loc: "야쿠인" },
+            { type: "앙버터", name: "Good Up Coffee", icon: "🥪", hours: "12:00 - 18:30", holiday: "목요일", menu: "앙버터 토스트", price: "1,200円", kids: "보통", google: 4.6, tabelog: 3.5, desc: "작고 소중한 커피 한 잔", loc: "텐진 미나미" },
+            { type: "음악", name: "Stereo Coffee", icon: "🎶", hours: "10:00 - 20:00", holiday: "수요일", menu: "화이트 커피", price: "700円", kids: "보통", google: 4.5, tabelog: 3.4, desc: "음악이 흐르는 힙한 공간", loc: "텐진 미나미" },
+            { type: "스페셜티", name: "Coffee County", icon: "🌍", hours: "11:00 - 19:00", holiday: "수요일", menu: "드립 커피", price: "900円", kids: "보통", google: 4.7, tabelog: 3.6, desc: "산지의 풍미를 담은 한 잔", loc: "텐진 미나미" }
+        ]
+    };
+
+    const sectionMeta = {
+        meals: { title: "봄날의 풍성한 식탁", desc: "요리 종류를 선택하여 사역팀의 취향에 맞는 최고의 한 끼를 찾아보세요.", icon: "🍱" },
+        desserts: { title: "달콤한 나눔의 조각", desc: "나누고 싶은 디저트 종류를 선택하여 휴식의 시간을 설계하십시오.", icon: "🍰" },
+        coffee: { title: "사색과 묵상의 한 잔", desc: "어떤 분위기의 카페를 원하시나요? 카테고리를 눌러 확인해보세요.", icon: "☕" }
+    };
+
+    let currentCategory = 'meals';
+    let currentTypeFilter = 'all';
+
+    function renderTypeSelector() {
+        const selector = document.getElementById('type-selector');
+        selector.innerHTML = '';
+        
+        const data = database[currentCategory];
+        const types = {};
+        data.forEach(item => {
+            types[item.type] = (types[item.type] || 0) + 1;
+        });
+
+        // Add 'All' option
+        const allBtn = createTypeItem('all', data.length);
+        selector.appendChild(allBtn);
+
+        Object.keys(types).sort().forEach(type => {
+            const btn = createTypeItem(type, types[type]);
+            selector.appendChild(btn);
+        });
+    }
+
+    function createTypeItem(type, count) {
+        const div = document.createElement('div');
+        const isActive = currentTypeFilter === type;
+        div.className = `flex justify-between items-center px-4 py-3 rounded-2xl cursor-pointer transition-all border ${isActive ? 'type-item-active' : 'hover:bg-pink-50/50 border-transparent text-gray-500'}`;
+        div.onclick = () => selectType(type);
+        
+        div.innerHTML = `
+            <span class="text-sm font-bold">${type === 'all' ? '전체 보기' : type}</span>
+            <span class="text-[10px] bg-white px-2 py-0.5 rounded-full shadow-sm font-black">${count}</span>
+        `;
+        return div;
+    }
+
+    function selectType(type) {
+        currentTypeFilter = type;
+        document.getElementById('active-filter-label').innerText = type === 'all' ? '전체 보기' : type;
+        renderTypeSelector();
+        filterData();
+    }
+
+    function renderCards(dataArray) {
+        const grid = document.getElementById('card-grid');
+        grid.innerHTML = '';
+        
+        if (dataArray.length === 0) {
+            grid.innerHTML = '<div class="col-span-full text-center text-pink-300 py-12 italic font-light">검색 결과가 없습니다.</div>';
+            return;
+        }
+
+        dataArray.forEach(item => {
+            const card = document.createElement('div');
+            card.className = "bg-white border border-pink-50 rounded-[35px] card-spring transition-all p-8 flex flex-col group shadow-sm relative";
+            
+            const kidsColor = item.kids === '가능' || item.kids === '적극추천' ? 'bg-emerald-50 text-emerald-600' : 
+                             item.kids === '어려움' ? 'bg-rose-50 text-rose-600' : 'bg-gray-100 text-gray-500';
+
+            card.innerHTML = `
+                <div class="flex items-center gap-6 mb-8">
+                    <div class="icon-box text-pink-500 group-hover:scale-110 transition-transform duration-300">
+                        ${item.icon}
+                    </div>
+                    <div>
+                        <div class="flex gap-2 mb-2">
+                            <span class="bg-blue-50 text-blue-600 text-[9px] font-black px-2 py-1 rounded-md">G ${item.google}</span>
+                            <span class="bg-rose-50 text-rose-600 text-[9px] font-black px-2 py-1 rounded-md">T ${item.tabelog}</span>
+                        </div>
+                        <h4 class="font-black text-2xl text-gray-800 tracking-tighter leading-none">${item.name}</h4>
+                    </div>
+                </div>
+
+                <div class="space-y-4 mb-8">
+                    <div class="flex items-center justify-between text-[11px] font-bold">
+                        <span class="text-gray-400">🕰️ 영업시간</span>
+                        <span class="text-gray-700">${item.hours}</span>
+                    </div>
+                    <div class="flex items-center justify-between text-[11px] font-bold">
+                        <span class="text-gray-400">📅 휴무일</span>
+                        <span class="text-pink-500">${item.holiday}</span>
+                    </div>
+                    <div class="border-t border-dashed border-gray-100 pt-4">
+                        <div class="flex flex-wrap gap-2">
+                            <span class="text-[10px] bg-pink-50 text-pink-500 font-bold px-3 py-1.5 rounded-xl">🌸 ${item.menu}</span>
+                            <span class="text-[10px] bg-emerald-50 text-emerald-500 font-bold px-3 py-1.5 rounded-xl">💴 ${item.price}</span>
+                            <span class="text-[10px] ${kidsColor} font-black px-3 py-1.5 rounded-xl">👶 ${item.kids}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <p class="text-gray-400 text-xs mb-8 font-light leading-relaxed">${item.desc}</p>
+                
+                <div class="mt-auto space-y-3">
+                    <div class="flex items-center text-gray-400 text-[10px] font-medium">
+                        <span class="mr-2">📍</span> ${item.loc}
+                    </div>
+                    <div class="grid grid-cols-2 gap-3">
+                        <button class="bg-gray-50 hover:bg-gray-100 text-gray-500 py-4 rounded-2xl text-[10px] font-black tracking-widest transition-colors uppercase">MAP</button>
+                        <button class="bg-pink-500 hover:bg-pink-600 text-white py-4 rounded-2xl text-[10px] font-black tracking-widest transition-all shadow-lg shadow-pink-100 uppercase">RESERVE</button>
+                    </div>
+                </div>
+            `;
+            grid.appendChild(card);
+        });
+
+        document.getElementById('results-count').innerText = `${dataArray.length} SPOTS FOUND`;
+    }
+
+    function filterData() {
+        const query = document.getElementById('searchInput').value.toLowerCase();
+        let filtered = database[currentCategory];
+        
+        // 1. Apply Type Filter
+        if (currentTypeFilter !== 'all') {
+            filtered = filtered.filter(item => item.type === currentTypeFilter);
+        }
+        
+        // 2. Apply Search Filter
+        if (query) {
+            filtered = filtered.filter(item => 
+                item.name.toLowerCase().includes(query) || 
+                item.type.toLowerCase().includes(query) || 
+                item.menu.toLowerCase().includes(query) ||
+                item.loc.toLowerCase().includes(query)
+            );
+        }
+        
+        renderCards(filtered);
+    }
+
+    function switchTab(tabId) {
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.classList.remove('tab-active');
+            btn.classList.add('text-stone-400');
+        });
+        document.getElementById('tab-' + tabId).classList.add('tab-active');
+        document.getElementById('tab-' + tabId).classList.remove('text-stone-400');
+
+        if (tabId === 'insights') {
+            document.getElementById('content-directory').classList.add('hidden');
+            document.getElementById('content-insights').classList.remove('hidden');
+        } else {
+            document.getElementById('content-insights').classList.add('hidden');
+            document.getElementById('content-directory').classList.remove('hidden');
+            currentCategory = tabId;
+            currentTypeFilter = 'all'; // Reset filter on tab change
+            
+            document.getElementById('section-title').innerText = sectionMeta[tabId].title;
+            document.getElementById('section-desc').innerText = sectionMeta[tabId].desc;
+            document.getElementById('active-filter-label').innerText = '전체 보기';
+            document.getElementById('searchInput').value = '';
+            
+            renderTypeSelector();
+            renderCards(database[currentCategory]);
+        }
+    }
+
+    window.onload = () => {
+        renderTypeSelector();
+        renderCards(database.meals);
+        document.getElementById('results-count').innerText = `${database.meals.length} SPOTS FOUND`;
+    };
+</script>
+
+</body>
+</html>
