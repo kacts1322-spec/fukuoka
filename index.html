@@ -76,13 +76,27 @@
     </header>
 
     <nav class="flex overflow-x-auto mb-10 space-x-3 no-scrollbar pb-2">
-        <button id="tab-meals" class="tab-btn tab-active px-10 py-4 rounded-2xl transition-all" onclick="switchTab('meals')">🍱 식사 공간</button>
-        <button id="tab-desserts" class="tab-btn px-10 py-4 text-stone-400 rounded-2xl transition-all" onclick="switchTab('desserts')">🍰 달콤한 휴식</button>
-        <button id="tab-coffee" class="tab-btn px-10 py-4 text-stone-400 rounded-2xl transition-all" onclick="switchTab('coffee')">☕ 묵상의 자리</button>
-        <button id="tab-insights" class="tab-btn px-10 py-4 text-stone-400 rounded-2xl transition-all" onclick="switchTab('insights')">📒 PM 기획노트</button>
+        <button id="tab-overview" class="tab-btn tab-active px-10 py-4 rounded-2xl transition-all" onclick="switchTab('overview')">🗺️ 개요</button>
+        <button id="tab-meals" class="tab-btn px-10 py-4 text-stone-400 rounded-2xl transition-all" onclick="switchTab('meals')">🍱 음식점</button>
+        <button id="tab-desserts" class="tab-btn px-10 py-4 text-stone-400 rounded-2xl transition-all" onclick="switchTab('desserts')">🍰 디저트</button>
+        <button id="tab-coffee" class="tab-btn px-10 py-4 text-stone-400 rounded-2xl transition-all" onclick="switchTab('coffee')">☕ 카페</button>
+        <button id="tab-insights" class="tab-btn px-10 py-4 text-stone-400 rounded-2xl transition-all" onclick="switchTab('insights')">📒 참고</button>
     </nav>
 
-    <main id="content-directory" class="block">
+    <main id="content-overview" class="block">
+        <div class="bg-white/90 rounded-[40px] shadow-2xl border border-pink-50 p-8 mb-10">
+            <div class="mb-10 text-center">
+                <h2 class="text-3xl font-black text-gray-800 mb-3">후쿠오카 통합 미식 지도</h2>
+                <p class="text-gray-400 text-sm leading-relaxed">텐진에서 하카타까지, 후쿠오카의 주요 지역별로 모든 매장의 위치 개요를 확인하세요.<br/>카드를 클릭하면 상세 보기로 이동합니다.</p>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8" id="overview-grid">
+                <!-- Javascript will inject location columns here -->
+            </div>
+        </div>
+    </main>
+
+    <main id="content-directory" class="hidden">
         <div class="bg-white/90 rounded-[40px] shadow-2xl border border-pink-50 p-8 mb-10">
             <div class="flex flex-col xl:flex-row justify-between items-end mb-10 gap-6">
                 <div class="max-w-2xl">
@@ -226,13 +240,70 @@
     };
 
     const sectionMeta = {
-        meals: { title: "봄날의 풍성한 식탁", desc: "요리 종류를 선택하여 사역팀의 취향에 맞는 최고의 한 끼를 찾아보세요.", icon: "🍱" },
-        desserts: { title: "달콤한 나눔의 조각", desc: "나누고 싶은 디저트 종류를 선택하여 휴식의 시간을 설계하십시오.", icon: "🍰" },
-        coffee: { title: "사색과 묵상의 한 잔", desc: "어떤 분위기의 카페를 원하시나요? 카테고리를 눌러 확인해보세요.", icon: "☕" }
+        meals: { title: "봄날의 풍성한 음식점", desc: "요리 종류를 선택하여 사역팀의 취향에 맞는 최고의 한 끼를 찾아보세요.", icon: "🍱" },
+        desserts: { title: "달콤한 디저트", desc: "나누고 싶은 디저트 종류를 선택하여 휴식의 시간을 설계하십시오.", icon: "🍰" },
+        coffee: { title: "사색과 묵상의 카페", desc: "어떤 분위기의 카페를 원하시나요? 카테고리를 눌러 확인해보세요.", icon: "☕" }
     };
 
     let currentCategory = 'meals';
     let currentTypeFilter = 'all';
+
+    window.jumpToItem = function(name) {
+        let targetCategory = 'meals';
+        if (database.desserts.some(i => i.name === name)) targetCategory = 'desserts';
+        if (database.coffee.some(i => i.name === name)) targetCategory = 'coffee';
+        
+        switchTab(targetCategory);
+        document.getElementById('searchInput').value = name;
+        filterData();
+    };
+
+    function renderOverview() {
+        const allItems = [...database.meals, ...database.desserts, ...database.coffee];
+        
+        const areas = {
+            '📍 하카타 역 주변': allItems.filter(item => item.loc.includes('하카타') || item.loc.includes('아뮤플라자') || item.loc.includes('키테')),
+            '📍 텐진 · 야쿠인 주변': allItems.filter(item => item.loc.includes('텐진') || item.loc.includes('다이묘') || item.loc.includes('야쿠인') || item.loc.includes('파르코') || item.loc.includes('아크로스') || item.loc.includes('솔라리아')),
+            '📍 나카스 · 기타 지역': allItems.filter(item => !item.loc.includes('하카타') && !item.loc.includes('아뮤플라자') && !item.loc.includes('키테') && !item.loc.includes('텐진') && !item.loc.includes('다이묘') && !item.loc.includes('야쿠인') && !item.loc.includes('파르코') && !item.loc.includes('아크로스') && !item.loc.includes('솔라리아'))
+        };
+
+        const grid = document.getElementById('overview-grid');
+        grid.innerHTML = '';
+
+        for (const [areaName, items] of Object.entries(areas)) {
+            const col = document.createElement('div');
+            col.className = "bg-pink-50/40 rounded-[30px] p-6 border border-pink-100 shadow-inner";
+            
+            let listHtml = '';
+            items.forEach(item => {
+                const reserveReq = ['스시 사카이', '치카에', '스도', '야키니쿠 챔피언', '키쿠카와', '미즈타키 나가노', '요시즈카 우나기야', '오오야마', '니쿠이치', '토리덴'].includes(item.name);
+                listHtml += `
+                    <div class="mb-3 p-4 bg-white rounded-2xl shadow-sm border border-pink-50 hover:-translate-y-1 hover:shadow-lg transition-all cursor-pointer group" onclick="window.jumpToItem('${item.name}')">
+                        <div class="flex flex-col mb-1">
+                            <span class="font-black text-gray-800 text-[15px] flex items-center justify-between">
+                                <span><span class="text-pink-400 group-hover:scale-125 transition-transform inline-block">${item.icon}</span> ${item.name}</span>
+                                ${reserveReq ? '<span class="text-[9px] bg-rose-500 text-white px-2 py-0.5 rounded-full shadow-sm tracking-wide">🚨 예약필수</span>' : ''}
+                            </span>
+                        </div>
+                        <div class="text-[11px] text-gray-400 mt-2 flex justify-between items-center border-t border-dashed border-gray-100 pt-2">
+                            <span class="text-pink-500 font-bold bg-pink-50 px-2 py-0.5 rounded-md">${item.type}</span>
+                            <span>${item.loc}</span>
+                        </div>
+                    </div>
+                `;
+            });
+
+            col.innerHTML = `
+                <div class="text-center mb-6">
+                    <h3 class="text-[15px] font-black text-pink-500 bg-white inline-block px-5 py-2.5 rounded-full shadow-sm border border-pink-100 tracking-wide">${areaName}</h3>
+                </div>
+                <div class="h-[55vh] overflow-y-auto scroll-custom px-2 pb-4">
+                    ${listHtml}
+                </div>
+            `;
+            grid.appendChild(col);
+        }
+    }
 
     function renderTypeSelector() {
         const selector = document.getElementById('type-selector');
@@ -290,9 +361,11 @@
             const kidsColor = item.kids === '가능' || item.kids === '적극추천' ? 'bg-emerald-50 text-emerald-600' : 
                              item.kids === '어려움' ? 'bg-rose-50 text-rose-600' : 'bg-gray-100 text-gray-500';
 
+            const reserveReq = ['스시 사카이', '치카에', '스도', '야키니쿠 챔피언', '키쿠카와', '미즈타키 나가노', '요시즈카 우나기야', '오오야마', '니쿠이치', '토리덴'].includes(item.name);
+
             card.innerHTML = `
                 <div class="flex items-center gap-6 mb-8">
-                    <div class="icon-box text-pink-500 group-hover:scale-110 transition-transform duration-300">
+                    <div class="icon-box text-pink-500 group-hover:scale-110 transition-transform duration-300 relative inline-flex">
                         ${item.icon}
                     </div>
                     <div>
@@ -300,7 +373,10 @@
                             <span class="bg-blue-50 text-blue-600 text-[9px] font-black px-2 py-1 rounded-md">G ${item.google}</span>
                             <span class="bg-rose-50 text-rose-600 text-[9px] font-black px-2 py-1 rounded-md">T ${item.tabelog}</span>
                         </div>
-                        <h4 class="font-black text-2xl text-gray-800 tracking-tighter leading-none">${item.name}</h4>
+                        <h4 class="font-black text-2xl text-gray-800 tracking-tighter leading-none flex items-center flex-wrap gap-2">
+                            ${item.name}
+                            ${reserveReq ? '<span class="px-2 py-1 bg-rose-500 text-white text-[10px] rounded-lg tracking-widest leading-none drop-shadow-md pb-1.5 pt-1.5 whitespace-nowrap">🚨 예약필수</span>' : ''}
+                        </h4>
                     </div>
                 </div>
 
@@ -329,8 +405,17 @@
                         <span class="mr-2">📍</span> ${item.loc}
                     </div>
                     <div class="grid grid-cols-2 gap-3">
-                        <button class="bg-gray-50 hover:bg-gray-100 text-gray-500 py-4 rounded-2xl text-[10px] font-black tracking-widest transition-colors uppercase">MAP</button>
-                        <button class="bg-pink-500 hover:bg-pink-600 text-white py-4 rounded-2xl text-[10px] font-black tracking-widest transition-all shadow-lg shadow-pink-100 uppercase">RESERVE</button>
+                        <a href="${item.map || ('https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent('후쿠오카 ' + item.name))}" target="_blank" rel="noopener noreferrer" class="flex items-center justify-center bg-gray-50 hover:bg-gray-100 text-gray-500 py-4 rounded-2xl text-[10px] font-black tracking-widest transition-colors uppercase cursor-pointer">
+                            MAP
+                        </a>
+                        ${item.reserve || ['야키니쿠', '스시', '모츠나베', '장어덮밥', '장어', '야키토리', '회/정식', '닭요리', '정식', '퓨전', '오코노미야키', '이자카야'].includes(item.type) ? 
+                            `<a href="${item.reserve || ('https://tabelog.com/kr/fukuoka/rstLst/?sw=' + encodeURIComponent(item.name))}" target="_blank" rel="noopener noreferrer" class="flex items-center justify-center bg-pink-500 hover:bg-pink-600 text-white py-4 rounded-2xl text-[10px] font-black tracking-widest transition-all shadow-lg shadow-pink-100 uppercase cursor-pointer">
+                                RESERVE
+                            </a>` : 
+                            `<div class="flex items-center justify-center bg-gray-200 text-gray-400 py-4 rounded-2xl text-[10px] font-black tracking-widest transition-all uppercase cursor-not-allowed">
+                                NO RESERVE
+                            </div>`
+                        }
                     </div>
                 </div>
             `;
@@ -370,11 +455,16 @@
         document.getElementById('tab-' + tabId).classList.add('tab-active');
         document.getElementById('tab-' + tabId).classList.remove('text-stone-400');
 
+        document.getElementById('content-overview').classList.add('hidden');
+        document.getElementById('content-directory').classList.add('hidden');
+        document.getElementById('content-insights').classList.add('hidden');
+
         if (tabId === 'insights') {
-            document.getElementById('content-directory').classList.add('hidden');
             document.getElementById('content-insights').classList.remove('hidden');
+        } else if (tabId === 'overview') {
+            document.getElementById('content-overview').classList.remove('hidden');
+            renderOverview();
         } else {
-            document.getElementById('content-insights').classList.add('hidden');
             document.getElementById('content-directory').classList.remove('hidden');
             currentCategory = tabId;
             currentTypeFilter = 'all'; // Reset filter on tab change
@@ -390,9 +480,8 @@
     }
 
     window.onload = () => {
-        renderTypeSelector();
-        renderCards(database.meals);
-        document.getElementById('results-count').innerText = `${database.meals.length} SPOTS FOUND`;
+        renderOverview();
+        switchTab('overview');
     };
 </script>
 
