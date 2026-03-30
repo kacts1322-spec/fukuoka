@@ -80,6 +80,7 @@
         <button id="tab-meals" class="tab-btn px-10 py-4 text-stone-400 rounded-2xl transition-all" onclick="switchTab('meals')">🍱 음식점</button>
         <button id="tab-desserts" class="tab-btn px-10 py-4 text-stone-400 rounded-2xl transition-all" onclick="switchTab('desserts')">🍰 디저트</button>
         <button id="tab-coffee" class="tab-btn px-10 py-4 text-stone-400 rounded-2xl transition-all" onclick="switchTab('coffee')">☕ 카페</button>
+        <button id="tab-instagram" class="tab-btn px-10 py-4 text-stone-400 rounded-2xl transition-all" onclick="switchTab('instagram')">📸 인스타 추천</button>
         <button id="tab-insights" class="tab-btn px-10 py-4 text-stone-400 rounded-2xl transition-all" onclick="switchTab('insights')">📒 참고</button>
     </nav>
 
@@ -132,6 +133,38 @@
                     <div id="card-grid" class="grid grid-cols-1 md:grid-cols-2 gap-6 overflow-y-auto pr-4 scroll-custom" style="max-height: 75vh;">
                     </div>
                 </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- 인스타그램 추천 전용 탭 컨테이너 -->
+    <main id="content-instagram" class="hidden">
+        <div class="bg-white/90 rounded-[40px] shadow-2xl border border-pink-50 p-8 mb-10">
+            <!-- 상단 헤더 -->
+            <div class="mb-8">
+                <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 mb-4">
+                    <div>
+                        <h2 class="text-3xl font-black text-gray-800 mb-1">📸 인스타 추천 S급 맛집</h2>
+                        <p class="text-gray-400 text-sm">인스타그램 <span class="font-bold text-pink-500">@hamstar_food</span> · 10회 방문 300끼 먹고 엄선한 리스트</p>
+                    </div>
+                    <div class="flex gap-3 flex-wrap">
+                        <span class="bg-indigo-100 text-indigo-600 text-[11px] font-black px-4 py-2 rounded-full border border-indigo-200">🔷 = 기존 DB 중복</span>
+                        <div id="ig-results-count" class="bg-pink-50 text-pink-500 text-[11px] font-black px-4 py-2 rounded-full"></div>
+                    </div>
+                </div>
+                <!-- 검색 + 필터 영역 -->
+                <div class="flex flex-col xl:flex-row gap-4 items-center">
+                    <div class="relative w-full xl:w-80">
+                        <input type="text" id="igSearchInput" placeholder="식당명, 종류 검색..." class="w-full pl-12 pr-6 py-3 rounded-2xl border-2 border-pink-50 focus:border-pink-300 outline-none bg-white text-sm font-medium transition-all" onkeyup="filterInstagram()">
+                        <span class="absolute left-4 top-3.5 text-pink-300">🔍</span>
+                    </div>
+                    <div id="ig-type-selector" class="flex flex-wrap gap-2 overflow-x-auto">
+                        <!-- js inject -->
+                    </div>
+                </div>
+            </div>
+            <!-- 카드 그리드 -->
+            <div id="ig-card-grid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
             </div>
         </div>
     </main>
@@ -236,6 +269,69 @@
             { type: "앙버터", name: "Good Up Coffee", icon: "🥪", hours: "12:00 - 18:30", holiday: "목요일", menu: "앙버터 토스트", price: "1,200円", kids: "보통", google: 4.6, tabelog: 3.5, desc: "작고 소중한 커피 한 잔", loc: "텐진 미나미" },
             { type: "음악", name: "Stereo Coffee", icon: "🎶", hours: "10:00 - 20:00", holiday: "수요일", menu: "화이트 커피", price: "700円", kids: "보통", google: 4.5, tabelog: 3.4, desc: "음악이 흐르는 힙한 공간", loc: "텐진 미나미" },
             { type: "스페셜티", name: "Coffee County", icon: "🌍", hours: "11:00 - 19:00", holiday: "수요일", menu: "드립 커피", price: "900円", kids: "보통", google: 4.7, tabelog: 3.6, desc: "산지의 풍미를 담은 한 잔", loc: "텐진 미나미" }
+        ],
+        instagram: [
+            { type: "돈카츠", name: "돈카츠 요시다", icon: "🐷", desc: "저온카츠 인데 부드러운 식감", hours: "-", holiday: "-", menu: "-", price: "-", kids: "-", google: "-", tabelog: "-", loc: "후쿠오카" },
+            { type: "돈카츠", name: "이이히 돈카츠", icon: "🐷", desc: "여기도 탑클래스 돈카츠", hours: "-", holiday: "-", menu: "-", price: "-", kids: "-", google: "-", tabelog: "-", loc: "후쿠오카" },
+            { type: "돈카츠", name: "돈카츠 니시나카", icon: "🐷", desc: "상로스카츠", hours: "-", holiday: "-", menu: "-", price: "-", kids: "-", google: "-", tabelog: "-", loc: "후쿠오카" },
+            { type: "소바", name: "신슈소바 무라타", icon: "🌾", desc: "소바 전문점인데 튀김 잘함", hours: "-", holiday: "-", menu: "-", price: "-", kids: "-", google: "-", tabelog: "-", loc: "후쿠오카" },
+            { type: "소바", name: "아사고", icon: "🌾", desc: "타베로그 1등", hours: "-", holiday: "-", menu: "-", price: "-", kids: "-", google: "-", tabelog: "-", loc: "후쿠오카" },
+            { type: "소바", name: "와비스케", icon: "🌾", desc: "노부부가 운영하는 카모(오리)소바", hours: "-", holiday: "-", menu: "-", price: "-", kids: "-", google: "-", tabelog: "-", loc: "후쿠오카" },
+            { type: "함바그", name: "바쿠레", icon: "🐮", desc: "함바그카레", hours: "-", holiday: "-", menu: "-", price: "-", kids: "-", google: "-", tabelog: "-", loc: "후쿠오카" },
+            { type: "함바그", name: "키와미야 함바그", icon: "🐮", desc: "후쿠오카 함바그(웨이팅有) 💯", hours: "-", holiday: "-", menu: "-", price: "-", kids: "-", google: "-", tabelog: "-", loc: "후쿠오카" },
+            { type: "함바그", name: "히키니쿠토코메", icon: "🐮", desc: "숯불 함바그(일주일전 예약)", hours: "-", holiday: "-", menu: "-", price: "-", kids: "-", google: "-", tabelog: "-", loc: "후쿠오카" },
+            { type: "덮밥", name: "이나다야 선", icon: "🍚", desc: "직화숯불 돼지덮밥 부타동 💯", hours: "-", holiday: "-", menu: "-", price: "-", kids: "-", google: "-", tabelog: "-", loc: "후쿠오카" },
+            { type: "덮밥", name: "야구라", icon: "🍚", desc: "할아버지가 손 덜덜 떨면서 만드는 가츠동", hours: "-", holiday: "-", menu: "-", price: "-", kids: "-", google: "-", tabelog: "-", loc: "후쿠오카" },
+            { type: "덮밥", name: "쿠로다한", icon: "🍚", desc: "가성비 마구로동(참치덮밥)", hours: "-", holiday: "-", menu: "-", price: "-", kids: "-", google: "-", tabelog: "-", loc: "후쿠오카" },
+            { type: "카이센동", name: "우오츄", icon: "🐟", desc: "현지인도 줄 서는 1등 카이센동 💯", hours: "-", holiday: "-", menu: "-", price: "-", kids: "-", google: "-", tabelog: "-", loc: "후쿠오카" },
+            { type: "카이센동", name: "히노데", icon: "🐟", desc: "하카타역 지하1층 낮에도 밤에도 영업", hours: "-", holiday: "-", menu: "-", price: "-", kids: "-", google: "-", tabelog: "-", loc: "후쿠오카" },
+            { type: "카이센동", name: "쇼쿠도 미츠", icon: "🐟", desc: "맛있는 카이센동 1300엔", hours: "-", holiday: "-", menu: "-", price: "1,300円", kids: "-", google: "-", tabelog: "-", loc: "후쿠오카" },
+            { type: "텐동/튀김", name: "타케우치", icon: "🍤", desc: "타베로그 1위 튀김코스", hours: "-", holiday: "-", menu: "-", price: "-", kids: "-", google: "-", tabelog: "-", loc: "후쿠오카" },
+            { type: "텐동/튀김", name: "덴푸라 다나카", icon: "🍤", desc: "타베로그 2위 튀김 오마카세", hours: "-", holiday: "-", menu: "-", price: "-", kids: "-", google: "-", tabelog: "-", loc: "후쿠오카" },
+            { type: "텐동/튀김", name: "텐야스", icon: "🍤", desc: "텐동", hours: "-", holiday: "-", menu: "-", price: "-", kids: "-", google: "-", tabelog: "-", loc: "후쿠오카" },
+            { type: "모츠나베", name: "모츠나베 타슈", icon: "🍲", desc: "후쿠오카 1등 💯", hours: "-", holiday: "-", menu: "-", price: "-", kids: "-", google: "-", tabelog: "-", loc: "후쿠오카" },
+            { type: "모츠나베", name: "모츠나베 마에다야", icon: "🍲", desc: "맛있음(웨이팅 90분)", hours: "-", holiday: "-", menu: "-", price: "-", kids: "-", google: "-", tabelog: "-", loc: "후쿠오카" },
+            { type: "모츠나베", name: "모츠시게", icon: "🍲", desc: "호르몬 스키야키 1인 1500엔", hours: "-", holiday: "-", menu: "-", price: "1,500円", kids: "-", google: "-", tabelog: "-", loc: "후쿠오카" },
+            { type: "야키니꾸", name: "시치린야", icon: "🥩", desc: "우설 무한리필 야키니꾸 🔥", hours: "-", holiday: "-", menu: "-", price: "-", kids: "-", google: "-", tabelog: "-", loc: "후쿠오카" },
+            { type: "야키니꾸", name: "케고 야키톤", icon: "🥩", desc: "일본식 돼지갈비 💯 (상남자 강추)", hours: "-", holiday: "-", menu: "-", price: "-", kids: "-", google: "-", tabelog: "-", loc: "후쿠오카" },
+            { type: "야키니꾸", name: "니쿠이치", icon: "🥩", desc: "한달 전 예약 ㄱㄱ (구글맵에서)", hours: "-", holiday: "-", menu: "-", price: "-", kids: "-", google: "-", tabelog: "-", loc: "후쿠오카" },
+            { type: "스시", name: "효탄스시", icon: "🍣", desc: "후쿠오카에서 제일 유명한 스시집", hours: "-", holiday: "-", menu: "-", price: "-", kids: "-", google: "-", tabelog: "-", loc: "후쿠오카" },
+            { type: "스시", name: "타츠미스시", icon: "🍣", desc: "가성비 오마카세", hours: "-", holiday: "-", menu: "-", price: "-", kids: "-", google: "-", tabelog: "-", loc: "후쿠오카" },
+            { type: "스시", name: "스시로 오야후코도리점", icon: "🍣", desc: "저렴한 회전초밥", hours: "-", holiday: "-", menu: "-", price: "-", kids: "-", google: "-", tabelog: "-", loc: "후쿠오카" },
+            { type: "라멘", name: "핫짱라멘", icon: "🍜", desc: "후쿠오카 1등 💯💯", hours: "-", holiday: "-", menu: "-", price: "-", kids: "-", google: "-", tabelog: "-", loc: "후쿠오카" },
+            { type: "라멘", name: "나카스카와바타 키린", icon: "🍜", desc: "신신보다 진하고 맛있는", hours: "-", holiday: "-", menu: "-", price: "-", kids: "-", google: "-", tabelog: "-", loc: "후쿠오카" },
+            { type: "라멘", name: "명경지수 다이묘", icon: "🍜", desc: "특제 시오라멘(차가운 🧊 평냉st)", hours: "-", holiday: "-", menu: "-", price: "-", kids: "-", google: "-", tabelog: "-", loc: "후쿠오카" },
+            { type: "우동", name: "만다우동", icon: "🍜", desc: "얇은 면의 온우동", hours: "-", holiday: "-", menu: "-", price: "-", kids: "-", google: "-", tabelog: "-", loc: "후쿠오카" },
+            { type: "우동", name: "나가하마우동", icon: "🍜", desc: "표고우동 🍄", hours: "-", holiday: "-", menu: "-", price: "-", kids: "-", google: "-", tabelog: "-", loc: "후쿠오카" },
+            { type: "우동", name: "다이치노 우동", icon: "🍜", desc: "우엉우동 (국물이 끝내줌)", hours: "-", holiday: "-", menu: "-", price: "-", kids: "-", google: "-", tabelog: "-", loc: "후쿠오카" },
+            { type: "우동", name: "하카타 아카초코베", icon: "🍜", desc: "카레 민찌우동(유니짜장st)", hours: "-", holiday: "-", menu: "-", price: "-", kids: "-", google: "-", tabelog: "-", loc: "후쿠오카" },
+            { type: "일본 가정식", name: "봄바키친", icon: "🍱", desc: "치킨난반, 카레, 돈까스덮밥, 나폴리탄", hours: "-", holiday: "-", menu: "-", price: "-", kids: "-", google: "-", tabelog: "-", loc: "후쿠오카" },
+            { type: "일본 가정식", name: "텐텐테이", icon: "🍱", desc: "점심에는 정식집 저녁에는 이자카야", hours: "-", holiday: "-", menu: "-", price: "-", kids: "-", google: "-", tabelog: "-", loc: "후쿠오카" },
+            { type: "일본 가정식", name: "우메야마 텟페이 쇼쿠도", icon: "🍱", desc: "생선구이 or 생선조림", hours: "-", holiday: "-", menu: "-", price: "-", kids: "-", google: "-", tabelog: "-", loc: "후쿠오카" },
+            { type: "일본 가정식", name: "하카타 고마사바야", icon: "🍱", desc: "고마사바 전문점", hours: "-", holiday: "-", menu: "-", price: "-", kids: "-", google: "-", tabelog: "-", loc: "후쿠오카" },
+            { type: "장어덮밥", name: "우나젠", icon: "🍱", desc: "타베로그 1등 전국13등 우나기야", hours: "-", holiday: "-", menu: "-", price: "-", kids: "-", google: "-", tabelog: "-", loc: "후쿠오카" },
+            { type: "장어덮밥", name: "우나기노 에이토", icon: "🍱", desc: "장어덮밥", hours: "-", holiday: "-", menu: "-", price: "-", kids: "-", google: "-", tabelog: "-", loc: "후쿠오카" },
+            { type: "장어덮밥", name: "우나기진", icon: "🍱", desc: "장어랑 밥을 쪄서 구운 세이로무시", hours: "-", holiday: "-", menu: "-", price: "-", kids: "-", google: "-", tabelog: "-", loc: "후쿠오카" },
+            { type: "이자카야", name: "시후도", icon: "🏮", desc: "현지인으로 가득한 이자카야", hours: "-", holiday: "-", menu: "-", price: "-", kids: "-", google: "-", tabelog: "-", loc: "후쿠오카" },
+            { type: "이자카야", name: "와라야키 미깡", icon: "🏮", desc: "친절하고 맛있는 다찌술집", hours: "-", holiday: "-", menu: "-", price: "-", kids: "-", google: "-", tabelog: "-", loc: "후쿠오카" },
+            { type: "이자카야", name: "하카타사카바 소루리바", icon: "🏮", desc: "프리미엄 사케", hours: "-", holiday: "-", menu: "-", price: "-", kids: "-", google: "-", tabelog: "-", loc: "후쿠오카" },
+            { type: "이자카야", name: "타케토라", icon: "🏮", desc: "교자+마파두부 (가성비 술집)", hours: "-", holiday: "-", menu: "-", price: "-", kids: "-", google: "-", tabelog: "-", loc: "후쿠오카" },
+            { type: "이자카야", name: "쇼오와 레트로 사카바 쿠라요시", icon: "🏮", desc: "나폴리탄 💯", hours: "-", holiday: "-", menu: "-", price: "-", kids: "-", google: "-", tabelog: "-", loc: "후쿠오카" },
+            { type: "로바다야끼", name: "로바타 산코바시", icon: "🔥", desc: "후쿠오카에서 제일 유명한 🔥", hours: "-", holiday: "-", menu: "-", price: "-", kids: "-", google: "-", tabelog: "-", loc: "후쿠오카" },
+            { type: "로바다야끼", name: "로바타 신카와바시", icon: "🔥", desc: "산코바시의 별관", hours: "-", holiday: "-", menu: "-", price: "-", kids: "-", google: "-", tabelog: "-", loc: "후쿠오카" },
+            { type: "로바다야끼", name: "로바타 햐쿠시키", icon: "🔥", desc: "힙한 현지인들이 많이 오는곳", hours: "-", holiday: "-", menu: "-", price: "-", kids: "-", google: "-", tabelog: "-", loc: "후쿠오카" },
+            { type: "심야술집", name: "왕교자", icon: "🌙", desc: "교자/볶음밥 (~ 1:30까지)", hours: "-", holiday: "-", menu: "-", price: "-", kids: "-", google: "-", tabelog: "-", loc: "후쿠오카" },
+            { type: "심야술집", name: "시노와 이마이즈미", icon: "🌙", desc: "3시까지 운영하는 술집", hours: "-", holiday: "-", menu: "-", price: "-", kids: "-", google: "-", tabelog: "-", loc: "후쿠오카" },
+            { type: "조식", name: "사바타로", icon: "🌅", desc: "예약제로 운영하는 솥밥집 7:30~", hours: "-", holiday: "-", menu: "-", price: "-", kids: "-", google: "-", tabelog: "-", loc: "후쿠오카" },
+            { type: "조식", name: "이토오카시", icon: "🌅", desc: "고등어구이 해물덮밥 7:00~", hours: "-", holiday: "-", menu: "-", price: "-", kids: "-", google: "-", tabelog: "-", loc: "후쿠오카" },
+            { type: "조식", name: "마메후지", icon: "🌅", desc: "두부요리 전문식당 8:00~", hours: "-", holiday: "-", menu: "-", price: "-", kids: "-", google: "-", tabelog: "-", loc: "후쿠오카" },
+            { type: "조식", name: "로바타노이토오카시", icon: "🌅", desc: "숯불 연어구이 8:00~", hours: "-", holiday: "-", menu: "-", price: "-", kids: "-", google: "-", tabelog: "-", loc: "후쿠오카" },
+            { type: "빵집", name: "프랑스과자16구", icon: "🥐", desc: "타베로그 1등 빵집", hours: "-", holiday: "-", menu: "-", price: "-", kids: "-", google: "-", tabelog: "-", loc: "후쿠오카" },
+            { type: "빵집", name: "아맘 다코탄", icon: "🥐", desc: "후쿠오카 3대빵집", hours: "-", holiday: "-", menu: "-", price: "-", kids: "-", google: "-", tabelog: "-", loc: "후쿠오카" },
+            { type: "빵집", name: "마츠빵", icon: "🥐", desc: "그냥 다 맛있음..", hours: "-", holiday: "-", menu: "-", price: "-", kids: "-", google: "-", tabelog: "-", loc: "후쿠오카" },
+            { type: "카페", name: "코히샤 노다", icon: "☕", desc: "고급스러운 푸딩과 일본 느낌의 카페", hours: "-", holiday: "-", menu: "-", price: "-", kids: "-", google: "-", tabelog: "-", loc: "후쿠오카" },
+            { type: "카페", name: "화이트글래스커피", icon: "☕", desc: "극상 수준의 커피맛집", hours: "-", holiday: "-", menu: "-", price: "-", kids: "-", google: "-", tabelog: "-", loc: "후쿠오카" },
+            { type: "카페", name: "카페테라스 주주", icon: "☕", desc: "오래된 동네카페(흡연가능)", hours: "-", holiday: "-", menu: "-", price: "-", kids: "-", google: "-", tabelog: "-", loc: "후쿠오카" }
         ]
     };
 
@@ -245,21 +341,218 @@
         coffee: { title: "사색과 묵상의 카페", desc: "어떤 분위기의 카페를 원하시나요? 카테고리를 눌러 확인해보세요.", icon: "☕" }
     };
 
+    // 기존 DB 이름 목록 (소문자+공백제거) - 인스타 리스트와 교차 검사용
+    const existingDbNames = [...database.meals, ...database.desserts, ...database.coffee]
+        .map(i => i.name.toLowerCase().replace(/\s+/g, ''));
+
+    // 인스타 DB 이름 목록 - 다른 탭에서 인스타 겹침 검사용
+    const instagramNames = database.instagram
+        .map(i => i.name.toLowerCase().replace(/\s+/g, ''));
+
+    // 이름이 기존 DB(음식점/디저트/카페)에 있는지 부분 문자열 매칭으로 확인
+    function isOverlapWithDb(name) {
+        const n = name.toLowerCase().replace(/\s+/g, '');
+        return existingDbNames.some(existing => existing.includes(n) || n.includes(existing));
+    }
+
+    // 이름이 인스타 DB에 있는지 확인 (다른 탭 카드에서 사용)
+    function isOverlapWithInstagram(name) {
+        const n = name.toLowerCase().replace(/\s+/g, '');
+        return instagramNames.some(ig => ig.includes(n) || n.includes(ig));
+    }
+
+    // 인스타 항목과 겹치는 메인 DB 항목을 찾아 반환 (없으면 null)
+    function findInMainDb(igName) {
+        const n = igName.toLowerCase().replace(/\s+/g, '');
+        return [...database.meals, ...database.desserts, ...database.coffee]
+            .find(item => {
+                const m = item.name.toLowerCase().replace(/\s+/g, '');
+                return m.includes(n) || n.includes(m);
+            }) || null;
+    }
+
     let currentCategory = 'meals';
     let currentTypeFilter = 'all';
+    let currentIgTypeFilter = 'all';
 
     window.jumpToItem = function(name) {
         let targetCategory = 'meals';
         if (database.desserts.some(i => i.name === name)) targetCategory = 'desserts';
         if (database.coffee.some(i => i.name === name)) targetCategory = 'coffee';
+        // instagram items jump to instagram tab
+        if (database.instagram.some(i => i.name === name)) targetCategory = 'instagram';
         
         switchTab(targetCategory);
-        document.getElementById('searchInput').value = name;
-        filterData();
+        if (targetCategory !== 'instagram') {
+            document.getElementById('searchInput').value = name;
+            filterData();
+        } else {
+            document.getElementById('igSearchInput').value = name;
+            filterInstagram();
+        }
     };
 
+    // ── 인스타 전용 렌더/필터 함수 ──────────────────────────────
+    function renderIgTypeSelector() {
+        const selector = document.getElementById('ig-type-selector');
+        selector.innerHTML = '';
+        const types = {};
+        database.instagram.forEach(item => {
+            types[item.type] = (types[item.type] || 0) + 1;
+        });
+
+        const allBtn = document.createElement('div');
+        allBtn.className = `px-4 py-2 rounded-2xl cursor-pointer transition-all text-[11px] font-black border ${
+            currentIgTypeFilter === 'all' ? 'bg-pink-100 text-pink-600 border-pink-200' : 'bg-white text-gray-400 border-gray-100 hover:bg-pink-50'
+        }`;
+        allBtn.innerText = `전체 (${database.instagram.length})`;
+        allBtn.onclick = () => { currentIgTypeFilter = 'all'; renderIgTypeSelector(); filterInstagram(); };
+        selector.appendChild(allBtn);
+
+        Object.keys(types).sort().forEach(type => {
+            const btn = document.createElement('div');
+            btn.className = `px-4 py-2 rounded-2xl cursor-pointer transition-all text-[11px] font-black border ${
+                currentIgTypeFilter === type ? 'bg-pink-100 text-pink-600 border-pink-200' : 'bg-white text-gray-400 border-gray-100 hover:bg-pink-50'
+            }`;
+            btn.innerText = `${type} (${types[type]})`;
+            btn.onclick = () => { currentIgTypeFilter = type; renderIgTypeSelector(); filterInstagram(); };
+            selector.appendChild(btn);
+        });
+    }
+
+    function filterInstagram() {
+        const query = document.getElementById('igSearchInput').value.toLowerCase();
+        let filtered = database.instagram;
+        if (currentIgTypeFilter !== 'all') {
+            filtered = filtered.filter(i => i.type === currentIgTypeFilter);
+        }
+        if (query) {
+            filtered = filtered.filter(i =>
+                i.name.toLowerCase().includes(query) ||
+                i.type.toLowerCase().includes(query) ||
+                i.desc.toLowerCase().includes(query)
+            );
+        }
+        renderIgCards(filtered);
+    }
+
+    function renderIgCards(dataArray) {
+        const grid = document.getElementById('ig-card-grid');
+        grid.innerHTML = '';
+
+        if (dataArray.length === 0) {
+            grid.innerHTML = '<div class="col-span-full text-center text-pink-300 py-12 italic font-light">검색 결과가 없습니다.</div>';
+            return;
+        }
+
+        const RESERVE_REQUIRED = ['스시 사카이', '치카에', '스도', '야키니쿠 챔피언', '키쿠카와', '미즈타키 나가노', '요시즈카 우나기야', '오오야마', '니쿠이치', '토리덴'];
+        const RESERVABLE_TYPES = ['야키니쿠', '스시', '모츠나베', '장어덮밥', '장어', '야키토리', '회/정식', '닭요리', '정식', '퓨전', '오코노미야키', '이자카야', '야키니꾸', '로바다야끼'];
+
+        dataArray.forEach(item => {
+            // 메인 DB에서 해당 항목 찾기 (있으면 데이터 병합)
+            const dbItem = findInMainDb(item.name);
+            // 병합된 데이터 (DB 항목이 있으면 우선, 없으면 인스타 데이터)
+            const merged = dbItem ? { ...dbItem, desc: item.desc, igType: item.type } : item;
+            const overlap = !!dbItem;
+
+            const card = document.createElement('div');
+
+            // 아기 친화도에 따른 배경색: 초록(아기에 긍정적) / 회색(부정적) / 흰색(중립)
+            const kidsBg = merged.kids === '가능' || merged.kids === '적극추천'
+                ? 'bg-emerald-50/70'
+                : (merged.kids === '어려움' ? 'bg-gray-100/80' : 'bg-white');
+
+            // 인스타 DB 겹치 여부에 따른 테두리
+            const borderClass = overlap
+                ? 'border-2 border-indigo-400 shadow-md shadow-indigo-100'
+                : 'border border-pink-50 shadow-sm';
+
+            card.className = `relative ${kidsBg} ${borderClass} rounded-[35px] card-spring transition-all p-8 flex flex-col group`;
+
+            const reserveReq = RESERVE_REQUIRED.includes(merged.name) || (dbItem && RESERVE_REQUIRED.includes(dbItem.name));
+            const kidsColor = merged.kids === '가능' || merged.kids === '적극추천' ? 'bg-emerald-50 text-emerald-600'
+                            : merged.kids === '어려움' ? 'bg-rose-50 text-rose-600'
+                            : 'bg-gray-100 text-gray-500';
+
+            const hasDetail = dbItem !== null; // DB 데이터가 있는 경우에만 상세정보 렌더링
+
+            // 평점 표시 (DB 데이터 있을 때만)
+            const ratingHtml = hasDetail
+                ? `<span class="bg-blue-50 text-blue-600 text-[9px] font-black px-2 py-1 rounded-md">G ${merged.google}</span>
+                   <span class="bg-rose-50 text-rose-600 text-[9px] font-black px-2 py-1 rounded-md">T ${merged.tabelog}</span>`
+                : `<span class="bg-gray-100 text-gray-400 text-[9px] font-black px-2 py-1 rounded-md">평점 정보 없음</span>`;
+
+            // 상세 정보 섹션 (DB 데이터 있을 때)
+            const detailHtml = hasDetail
+                ? `<div class="space-y-3 mb-6">
+                    <div class="flex items-center justify-between text-[11px] font-bold">
+                        <span class="text-gray-400">🕰️ 영업시간</span>
+                        <span class="text-gray-700">${merged.hours}</span>
+                    </div>
+                    <div class="flex items-center justify-between text-[11px] font-bold">
+                        <span class="text-gray-400">📅 휴무일</span>
+                        <span class="text-pink-500">${merged.holiday}</span>
+                    </div>
+                    <div class="border-t border-dashed ${overlap ? 'border-indigo-200' : 'border-gray-100'} pt-3">
+                        <div class="flex flex-wrap gap-2">
+                            <span class="text-[10px] bg-pink-50 text-pink-500 font-bold px-3 py-1.5 rounded-xl">🌸 ${merged.menu}</span>
+                            <span class="text-[10px] bg-emerald-50 text-emerald-500 font-bold px-3 py-1.5 rounded-xl">💴 ${merged.price}</span>
+                            <span class="text-[10px] ${kidsColor} font-black px-3 py-1.5 rounded-xl">👶 ${merged.kids}</span>
+                        </div>
+                    </div>
+                  </div>`
+                : `<div class="mb-6 p-3 bg-gray-50 rounded-2xl text-[11px] text-gray-400 text-center border border-dashed border-gray-200">📋 상세 정보 미등록 — 방문 전 직접 확인 권장</div>`;
+
+            // 버튼 섹션
+            const mapUrl = `https://www.google.com/maps/search/?api=1&query=후쿠오카+${encodeURIComponent(merged.name)}`;
+            const canReserve = RESERVABLE_TYPES.includes(merged.type) || RESERVABLE_TYPES.includes(item.igType) || merged.reserve;
+            const reserveHtml = canReserve
+                ? `<a href="${merged.reserve || 'https://tabelog.com/kr/fukuoka/rstLst/?sw=' + encodeURIComponent(merged.name)}" target="_blank" rel="noopener noreferrer"
+                      class="flex items-center justify-center bg-pink-500 hover:bg-pink-600 text-white py-4 rounded-2xl text-[10px] font-black tracking-widest transition-all shadow-lg shadow-pink-100 uppercase">
+                      RESERVE
+                   </a>`
+                : `<div class="flex items-center justify-center bg-gray-200 text-gray-400 py-4 rounded-2xl text-[10px] font-black tracking-widest uppercase cursor-not-allowed">NO RESERVE</div>`;
+
+            card.innerHTML = `
+                ${overlap ? '<span class="absolute top-4 right-4 text-[9px] bg-indigo-500 text-white px-2 py-1 rounded-full font-black tracking-wide">🔷 기존 DB 중복</span>' : ''}
+                <div class="flex items-center gap-5 mb-6">
+                    <div class="icon-box text-pink-500 group-hover:scale-110 transition-transform duration-300">${merged.icon}</div>
+                    <div>
+                        <div class="flex gap-2 mb-2">${ratingHtml}</div>
+                        <h4 class="font-black text-xl text-gray-800 tracking-tighter leading-snug flex items-center flex-wrap gap-2">
+                            ${merged.name}
+                            ${reserveReq ? '<span class="px-2 py-1 bg-rose-500 text-white text-[10px] rounded-lg tracking-widest whitespace-nowrap">🚨 예약필수</span>' : ''}
+                        </h4>
+                        <p class="text-[10px] text-pink-400 font-bold mt-1">${item.igType}${(dbItem && dbItem.type !== item.igType) ? ' · ' + dbItem.type : ''}</p>
+                    </div>
+                </div>
+
+                ${detailHtml}
+
+                <p class="text-gray-400 text-xs mb-6 font-light leading-relaxed italic">💬 ${item.desc}</p>
+
+                <div class="mt-auto space-y-3">
+                    <div class="flex items-center text-gray-400 text-[10px] font-medium">
+                        <span class="mr-2">📍</span> ${merged.loc}
+                    </div>
+                    <div class="grid grid-cols-2 gap-3">
+                        <a href="${mapUrl}" target="_blank" rel="noopener noreferrer"
+                           class="flex items-center justify-center bg-gray-50 hover:bg-gray-100 text-gray-500 py-4 rounded-2xl text-[10px] font-black tracking-widest uppercase transition-colors">
+                            MAP
+                        </a>
+                        ${reserveHtml}
+                    </div>
+                </div>
+            `;
+            grid.appendChild(card);
+        });
+
+        document.getElementById('ig-results-count').innerText = `${dataArray.length} SPOTS`;
+    }
+    // ───────────────────────────────────────────────────────────
+
     function renderOverview() {
-        const allItems = [...database.meals, ...database.desserts, ...database.coffee];
+        const allItems = [...database.meals, ...database.desserts, ...database.coffee, ...database.instagram];
         
         const areas = {
             '📍 하카타 역 주변': allItems.filter(item => item.loc.includes('하카타') || item.loc.includes('아뮤플라자') || item.loc.includes('키테')),
@@ -277,8 +570,14 @@
             let listHtml = '';
             items.forEach(item => {
                 const reserveReq = ['스시 사카이', '치카에', '스도', '야키니쿠 챔피언', '키쿠카와', '미즈타키 나가노', '요시즈카 우나기야', '오오야마', '니쿠이치', '토리덴'].includes(item.name);
+                // 개요 코마팩 아이템 업데이트 때 DB에서 아이 친화 정보 가져오기
+                const dbEntry = findInMainDb(item.name);
+                const kidsVal = dbEntry ? dbEntry.kids : (item.kids || '-');
+                const overviewKidsBg = kidsVal === '가능' || kidsVal === '적극추천' ? 'bg-emerald-50'
+                    : kidsVal === '어려움' ? 'bg-gray-200/70'
+                    : 'bg-white';
                 listHtml += `
-                    <div class="mb-3 p-4 bg-white rounded-2xl shadow-sm border border-pink-50 hover:-translate-y-1 hover:shadow-lg transition-all cursor-pointer group" onclick="window.jumpToItem('${item.name}')">
+                    <div class="mb-3 p-4 ${overviewKidsBg} rounded-2xl shadow-sm border border-pink-50 hover:-translate-y-1 hover:shadow-lg transition-all cursor-pointer group" onclick="window.jumpToItem('${item.name}')">
                         <div class="flex flex-col mb-1">
                             <span class="font-black text-gray-800 text-[15px] flex items-center justify-between">
                                 <span><span class="text-pink-400 group-hover:scale-125 transition-transform inline-block">${item.icon}</span> ${item.name}</span>
@@ -354,16 +653,33 @@
             return;
         }
 
+        const allExistingNames = [...database.meals, ...database.desserts, ...database.coffee].map(i => i.name.toLowerCase().replace(/\s+/g, ''));
+
         dataArray.forEach(item => {
             const card = document.createElement('div');
-            card.className = "bg-white border border-pink-50 rounded-[35px] card-spring transition-all p-8 flex flex-col group shadow-sm relative";
-            
-            const kidsColor = item.kids === '가능' || item.kids === '적극추천' ? 'bg-emerald-50 text-emerald-600' : 
+
+            // 인스타 DB와 겹치는 항목이면 인디고 테두리로 강조 표시
+            const igOverlap = isOverlapWithInstagram(item.name);
+
+            // 아기 친화도에 따른 배경색: 초록(긍정적) / 회색(부정적) / 흰색(중립)
+            const kidsBg = item.kids === '가능' || item.kids === '적극추천'
+                ? 'bg-emerald-50/70'
+                : (item.kids === '어려움' ? 'bg-gray-100/80' : 'bg-white');
+
+            // 인스타 겹치 여부에 따른 테두리
+            const borderClass = igOverlap
+                ? 'border-2 border-indigo-400 shadow-md shadow-indigo-100'
+                : 'border border-pink-50 shadow-sm';
+
+            card.className = `${kidsBg} ${borderClass} rounded-[35px] card-spring transition-all p-8 flex flex-col group relative`;
+
+            const kidsColor = item.kids === '가능' || item.kids === '적극추천' ? 'bg-emerald-50 text-emerald-600' :
                              item.kids === '어려움' ? 'bg-rose-50 text-rose-600' : 'bg-gray-100 text-gray-500';
 
             const reserveReq = ['스시 사카이', '치카에', '스도', '야키니쿠 챔피언', '키쿠카와', '미즈타키 나가노', '요시즈카 우나기야', '오오야마', '니쿠이치', '토리덴'].includes(item.name);
 
             card.innerHTML = `
+                ${igOverlap ? '<span class="absolute top-4 right-4 text-[9px] bg-indigo-500 text-white px-2 py-1 rounded-full font-black tracking-wide">📸 인스타 추천</span>' : ''}
                 <div class="flex items-center gap-6 mb-8">
                     <div class="icon-box text-pink-500 group-hover:scale-110 transition-transform duration-300 relative inline-flex">
                         ${item.icon}
@@ -455,25 +771,31 @@
         document.getElementById('tab-' + tabId).classList.add('tab-active');
         document.getElementById('tab-' + tabId).classList.remove('text-stone-400');
 
-        document.getElementById('content-overview').classList.add('hidden');
-        document.getElementById('content-directory').classList.add('hidden');
-        document.getElementById('content-insights').classList.add('hidden');
+        // 모든 섹션 숨기기
+        ['content-overview', 'content-directory', 'content-instagram', 'content-insights'].forEach(id => {
+            document.getElementById(id).classList.add('hidden');
+        });
 
         if (tabId === 'insights') {
             document.getElementById('content-insights').classList.remove('hidden');
         } else if (tabId === 'overview') {
             document.getElementById('content-overview').classList.remove('hidden');
             renderOverview();
+        } else if (tabId === 'instagram') {
+            document.getElementById('content-instagram').classList.remove('hidden');
+            currentIgTypeFilter = 'all';
+            renderIgTypeSelector();
+            filterInstagram();
         } else {
             document.getElementById('content-directory').classList.remove('hidden');
             currentCategory = tabId;
-            currentTypeFilter = 'all'; // Reset filter on tab change
-            
+            currentTypeFilter = 'all';
+
             document.getElementById('section-title').innerText = sectionMeta[tabId].title;
             document.getElementById('section-desc').innerText = sectionMeta[tabId].desc;
             document.getElementById('active-filter-label').innerText = '전체 보기';
             document.getElementById('searchInput').value = '';
-            
+
             renderTypeSelector();
             renderCards(database[currentCategory]);
         }
